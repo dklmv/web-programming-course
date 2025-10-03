@@ -9,7 +9,7 @@
     // See also https://aka.ms/tsconfig/module
     "module": "nodenext",
     "target": "esnext",
-    "lib": ["esnext", "DOM"],   
+    "lib": ["esnext", "DOM"],
 
     "types": [],
     // For nodejs:
@@ -18,10 +18,10 @@
     // and npm install -D @types/node
 
     // Вывод
-    "outDir": "./dist",                   // Папка для скомпилированных файлов
-    "rootDir": "./src",                   // Корневая папка исходников
-    "declaration": true,                  // Генерировать .d.ts файлы
-    "sourceMap": true,                    // Генерировать source maps
+    "outDir": "./dist", // Папка для скомпилированных файлов
+    "rootDir": "./src", // Корневая папка исходников
+    "declaration": true, // Генерировать .d.ts файлы
+    "sourceMap": true, // Генерировать source maps
     "declarationMap": true,
 
     // Stricter Typechecking Options
