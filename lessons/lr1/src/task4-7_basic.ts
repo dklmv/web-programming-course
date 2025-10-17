@@ -17,18 +17,25 @@
 // - id: number
 // - name: string
 // - email: string
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+}
 
 // TODO 1.2: Создайте тип UserRole как union type:
 // type UserRole = 'admin' | 'user'
+type UserRole = "admin" | "user";
 
 // TODO 1.3: Типизируйте эту функцию
-function createUser(name, email, role) {
-    return {
-        id: Math.floor(Math.random() * 1000),
-        name: name,
-        email: email,
-        role: role
-    };
+function createUser(name: string, email: string, role: UserRole): User {
+  return {
+    id: Math.floor(Math.random() * 1000),
+    name: name,
+    email: email,
+    role: role,
+  };
 }
 
 // ============================================
@@ -36,13 +43,13 @@ function createUser(name, email, role) {
 // ============================================
 
 // TODO 2.1: Типизируйте функцию с generics
-function getFirst(array) {
-    return array.length > 0 ? array[0] : undefined;
+function getFirst<T>(array: T[]): T | undefined {
+  return array.length > 0 ? array[0] : undefined;
 }
 
 // TODO 2.2: Типизируйте функцию с generics
-function filterArray(array, predicate) {
-    return array.filter(predicate);
+function filterArray<T>(array: T[], predicate: (item: T) => boolean): T[] {
+  return array.filter(predicate);
 }
 
 // ============================================
@@ -53,33 +60,38 @@ function filterArray(array, predicate) {
 // - success: boolean
 // - data: T | null
 // - error: string | null
+interface ApiResponse<T> {
+  success: boolean;
+  data: T | null;
+  error: string | null;
+}
 
 // TODO 3.2: Типизируйте эту функцию
-async function fetchUser(userId) {
-    try {
-        const response = await fetch(`/api/users/${userId}`);
-        const data = await response.json();
+async function fetchUser(userId: number): Promise<ApiResponse<User>> {
+  try {
+    const response = await fetch(`/api/users/${userId}`);
+    const data = await response.json();
 
-        if (!response.ok) {
-            return {
-                success: false,
-                data: null,
-                error: 'Ошибка загрузки'
-            };
-        }
-
-        return {
-            success: true,
-            data: data,
-            error: null
-        };
-    } catch (error) {
-        return {
-            success: false,
-            data: null,
-            error: error.message
-        };
+    if (!response.ok) {
+      return {
+        success: false,
+        data: null,
+        error: "Ошибка загрузки",
+      };
     }
+
+    return {
+      success: true,
+      data: data,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      data: null,
+      error: (error as Error).message,
+    };
+  }
 }
 
 // ============================================
@@ -87,55 +99,56 @@ async function fetchUser(userId) {
 // ============================================
 
 // TODO 4.1: Типизируйте эту функцию
-function getElementById(id) {
-    const element = document.getElementById(id);
-    if (!element) {
-        throw new Error(`Element ${id} not found`);
-    }
-    return element;
+function getElementById(id: string): HTMLElement {
+  const element = document.getElementById(id);
+  if (!element) {
+    throw new Error(`Element ${id} not found`);
+  }
+  return element;
 }
 
 // TODO 4.2: Типизируйте класс FormManager
 class FormManager {
-    // private propname: PropType;
-    constructor(formId) {
-        this.form = getElementById(formId);
-    }
+  private form: HTMLElement;
 
-    getValue(fieldId) {
-        const field = getElementById(fieldId);
-        return field.value;
-    }
+  constructor(formId: string) {
+    this.form = getElementById(formId);
+  }
 
-    setValue(fieldId, value) {
-        const field = getElementById(fieldId);
-        field.value = value;
-    }
+  getValue(fieldId: string): string {
+    const field = getElementById(fieldId) as HTMLInputElement;
+    return field.value;
+  }
 
-    onSubmit(handler) {
-        this.form.addEventListener('submit', (event) => {
-            event.preventDefault();
-            handler(event);
-        });
-    }
+  setValue(fieldId: string, value: string): void {
+    const field = getElementById(fieldId) as HTMLInputElement;
+    field.value = value;
+  }
+
+  onSubmit(handler: (event: Event) => void): void {
+    this.form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      handler(event);
+    });
+  }
 }
 
 // ============================================
 // Примеры использования
 // ============================================
 
-console.log('=== Тестирование ===');
+console.log("=== Тестирование ===");
 
 // Пример 1: Создание пользователя
-const user = createUser('Анна', 'anna@example.com', 'admin');
-console.log('Создан пользователь:', user);
+const user = createUser("Анна", "anna@example.com", "admin");
+console.log("Создан пользователь:", user);
 
 // Пример 2: Работа с массивами
 const numbers = [1, 2, 3, 4, 5];
 const first = getFirst(numbers);
-const evens = filterArray(numbers, n => n % 2 === 0);
-console.log('Первый элемент:', first);
-console.log('Четные числа:', evens);
+const evens = filterArray(numbers, (n) => n % 2 === 0);
+console.log("Первый элемент:", first);
+console.log("Четные числа:", evens);
 
 // Пример 3: Работа с API
 // await fetchUser(1).then(response => {

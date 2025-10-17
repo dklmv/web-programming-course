@@ -306,6 +306,8 @@ function logLength<T extends { length: number }>(item: T): T {
     return item;
 }
 
+
+
 logLength("Hello");        // ✅ string has length
 logLength([1, 2, 3]);      // ✅ array has length
 logLength(42);             // ❌ number doesn't have length

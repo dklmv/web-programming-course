@@ -1,6 +1,6 @@
 /*
  * ЗАДАЧА 6: Решение типовых проблем типизации
- * 
+ *
  * Инструкции:
  * 1. Переименуйте файл в .ts
  * 2. Исправьте все проблемы с типизацией
@@ -11,196 +11,257 @@
 // Проблемные функции, которые нужно исправить
 
 // ПРОБЛЕМА 1: Функция с any типом
-function processData<T extends object>(data: T[] | T) {
-    if (Array.isArray(data)) {
-        return data.map(item => item.toString());
-    }
-    //return Object.keys(criteria).every((key) => {
-    //    let key1 = key as keyof typeof criteria;
-    //    return user[key1] === criteria[key1];
-    //  });
+function processData<T extends object>(
+  data: T[] | T | string | number
+): string[] {
+  if (Array.isArray(data)) {
+    return data.map((item) => item.toString());
+  }
 
-    
-    if (typeof data === 'object' && data !== null) {
-        return Object.keys(data).map((key) => {
-            let key1 = key as keyof typeof data;
-            `${key1}: ${data[key1]}`
-        });
-    }
-    
-    return [null];
+  if (typeof data === "object" && data !== null) {
+    return Object.keys(data).map((key) => {
+      const key1 = key as keyof T;
+      return `${key}: ${data[key1]}`;
+    });
+  }
+
+  return [data?.toString() || "null"];
 }
 
 // ПРОБЛЕМА 2: Функция с неопределенными возвращаемыми типами
-function getValue(obj, path) {
-    const keys = path.split('.');
-    let current = obj;
-    
-    for (const key of keys) {
-        if (current && typeof current === 'object' && key in current) {
-            current = current[key];
-        } else {
-            return undefined;
-        }
+function getValue<T>(obj: T, path: string): unknown {
+  const keys = path.split(".");
+  let current: any = obj;
+
+  for (const key of keys) {
+    if (current && typeof current === "object" && key in current) {
+      current = current[key];
+    } else {
+      return undefined;
     }
-    
-    return current;
+  }
+
+  return current;
 }
 
 // ПРОБЛЕМА 3: Функция с проблемами null/undefined
-function formatUser(user) {
-    return {
-        fullName: user.firstName + ' ' + user.lastName,
-        email: user.email.toLowerCase(),
-        age: user.age || 'Не указан',
-        avatar: user.avatar ? user.avatar : '/default-avatar.png'
-    };
+interface User {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  age?: number;
+  avatar?: string;
+}
+
+interface FormattedUser {
+  fullName: string;
+  email: string;
+  age: string | number;
+  avatar: string;
+}
+
+function formatUser(user: User): FormattedUser {
+  return {
+    fullName:
+      `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Не указано",
+    email: (user.email || "").toLowerCase(),
+    age: user.age || "Не указан",
+    avatar: user.avatar || "/default-avatar.png",
+  };
 }
 
 // ПРОБЛЕМА 4: Функция с union типами без type guards
-function handleResponse(response) {
-    if (response.success) {
-        console.log('Данные:', response.data);
-        return response.data;
-    } else {
-        console.error('Ошибка:', response.error);
-        throw new Error(response.error);
-    }
+interface SuccessResponse<T> {
+  success: true;
+  data: T;
+  error?: never;
+}
+
+interface ErrorResponse {
+  success: false;
+  data?: never;
+  error: string;
+}
+
+type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
+
+function handleResponse<T>(response: ApiResponse<T>): T {
+  if (response.success) {
+    console.log("Данные:", response.data);
+    return response.data;
+  } else {
+    console.error("Ошибка:", response.error);
+    throw new Error(response.error);
+  }
 }
 
 // ПРОБЛЕМА 5: Функция с проблемами мутации
-function updateArray(arr, index, newValue) {
-    if (index >= 0 && index < arr.length) {
-        arr[index] = newValue;
-    }
-    return arr;
+function updateArray<T>(arr: T[], index: number, newValue: T): T[] {
+  if (index >= 0 && index < arr.length) {
+    const newArray = [...arr];
+    newArray[index] = newValue;
+    return newArray;
+  }
+  return [...arr];
 }
 
 // ПРОБЛЕМА 6: Класс с неправильной типизацией событий
+type EventCallback = (...args: any[]) => void;
+
 class EventEmitter {
-    constructor() {
-        this.listeners = {};
+  private listeners: Record<string, EventCallback[]> = {};
+
+  on(event: string, callback: EventCallback): void {
+    if (!this.listeners[event]) {
+      this.listeners[event] = [];
     }
-    
-    on(event, callback) {
-        if (!this.listeners[event]) {
-            this.listeners[event] = [];
-        }
-        this.listeners[event].push(callback);
+    this.listeners[event].push(callback);
+  }
+
+  emit(event: string, ...args: any[]): void {
+    if (this.listeners[event]) {
+      this.listeners[event].forEach((callback) => callback(...args));
     }
-    
-    emit(event, ...args) {
-        if (this.listeners[event]) {
-            this.listeners[event].forEach(callback => callback(...args));
-        }
+  }
+
+  off(event: string, callback: EventCallback): void {
+    if (this.listeners[event]) {
+      this.listeners[event] = this.listeners[event].filter(
+        (cb) => cb !== callback
+      );
     }
-    
-    off(event, callback) {
-        if (this.listeners[event]) {
-            this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
-        }
-    }
+  }
 }
 
 // ПРОБЛЕМА 7: Функция с проблемами асинхронности
-async function fetchWithRetry(url, maxRetries) {
-    let lastError;
-    
-    for (let i = 0; i < maxRetries; i++) {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            return response.json();
-        } catch (error) {
-            lastError = error;
-            if (i < maxRetries - 1) {
-                await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
-            }
-        }
+async function fetchWithRetry<T>(
+  url: string,
+  maxRetries: number = 3
+): Promise<T> {
+  let lastError: Error;
+
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return (await response.json()) as T;
+    } catch (error) {
+      lastError = error as Error;
+      if (i < maxRetries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 * (i + 1)));
+      }
     }
-    
-    throw lastError;
+  }
+
+  throw lastError!;
 }
 
 // ПРОБЛЕМА 8: Функция валидации с проблемами типов
-function validateForm(formData, rules) {
-    const errors = {};
-    
-    for (const field in rules) {
-        const value = formData[field];
-        const rule = rules[field];
-        
-        if (rule.required && (!value || value.trim() === '')) {
-            errors[field] = 'Поле обязательно для заполнения';
-            continue;
-        }
-        
-        if (value && rule.minLength && value.length < rule.minLength) {
-            errors[field] = `Минимальная длина: ${rule.minLength} символов`;
-            continue;
-        }
-        
-        if (value && rule.pattern && !rule.pattern.test(value)) {
-            errors[field] = rule.message || 'Неверный формат';
-        }
+interface ValidationRule {
+  required?: boolean;
+  minLength?: number;
+  pattern?: RegExp;
+  message?: string;
+}
+
+interface ValidationRules {
+  [field: string]: ValidationRule;
+}
+
+interface ValidationResult {
+  isValid: boolean;
+  errors: Record<string, string>;
+}
+
+function validateForm(
+  formData: Record<string, string>,
+  rules: ValidationRules
+): ValidationResult {
+  const errors: Record<string, string> = {};
+
+  for (const field in rules) {
+    const value = formData[field];
+    const rule = rules[field];
+
+    if (rule.required && (!value || value.trim() === "")) {
+      errors[field] = "Поле обязательно для заполнения";
+      continue;
     }
-    
-    return {
-        isValid: Object.keys(errors).length === 0,
-        errors
-    };
+
+    if (value && rule.minLength && value.length < rule.minLength) {
+      errors[field] = `Минимальная длина: ${rule.minLength} символов`;
+      continue;
+    }
+
+    if (value && rule.pattern && !rule.pattern.test(value)) {
+      errors[field] = rule.message || "Неверный формат";
+    }
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
 }
 
 // ПРОБЛЕМА 9: Утилитарная функция с проблемами типов
-function pick(obj, keys) {
-    const result = {};
-    keys.forEach(key => {
-        if (key in obj) {
-            result[key] = obj[key];
-        }
-    });
-    return result;
+function pick<T extends object, K extends keyof T>(
+  obj: T,
+  keys: K[]
+): Pick<T, K> {
+  const result = {} as Pick<T, K>;
+  keys.forEach((key) => {
+    if (key in obj) {
+      result[key] = obj[key];
+    }
+  });
+  return result;
 }
 
 // ПРОБЛЕМА 10: Функция сравнения с проблемами типов
-function isEqual(a, b) {
-    if (a === b) return true;
-    
-    if (a == null || b == null) return a === b;
-    
-    if (typeof a !== typeof b) return false;
-    
-    if (typeof a === 'object') {
-        const keysA = Object.keys(a);
-        const keysB = Object.keys(b);
-        
-        if (keysA.length !== keysB.length) return false;
-        
-        return keysA.every(key => isEqual(a[key], b[key]));
-    }
-    
-    return false;
+function isEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+
+  if (a == null || b == null) return a === b;
+
+  if (typeof a !== typeof b) return false;
+
+  if (typeof a === "object" && a !== null && b !== null) {
+    const keysA = Object.keys(a as object);
+    const keysB = Object.keys(b as object);
+
+    if (keysA.length !== keysB.length) return false;
+
+    return keysA.every((key) => isEqual((a as any)[key], (b as any)[key]));
+  }
+
+  return false;
 }
 
 // Примеры использования (должны работать после исправления типизации)
-console.log('=== Тестирование processData ===');
+console.log("=== Тестирование processData ===");
 console.log(processData([1, 2, 3]));
 console.log(processData({ a: 1, b: 2 }));
-console.log(processData('hello'));
+console.log(processData("hello"));
 
-console.log('\n=== Тестирование getValue ===');
-const testObj = { user: { profile: { name: 'Анна' } } };
-console.log(getValue(testObj, 'user.profile.name'));
-console.log(getValue(testObj, 'user.nonexistent'));
+console.log("\n=== Тестирование getValue ===");
+const testObj = { user: { profile: { name: "Анна" } } };
+console.log(getValue(testObj, "user.profile.name"));
+console.log(getValue(testObj, "user.nonexistent"));
 
-console.log('\n=== Тестирование EventEmitter ===');
+console.log("\n=== Тестирование EventEmitter ===");
 const emitter = new EventEmitter();
-emitter.on('test', (message) => console.log('Получено:', message));
-emitter.emit('test', 'Привет!');
+emitter.on("test", (message) => console.log("Получено:", message));
+emitter.emit("test", "Привет!");
 
-console.log('\n=== Тестирование pick ===');
-const user = { name: 'Анна', age: 25, email: 'anna@example.com', password: 'secret' };
-const publicData = pick(user, ['name', 'age', 'email']);
-console.log('Публичные данные:', publicData);
+console.log("\n=== Тестирование pick ===");
+const user = {
+  name: "Анна",
+  age: 25,
+  email: "anna@example.com",
+  password: "secret",
+};
+const publicData = pick(user, ["name", "age", "email"] as const);
+console.log("Публичные данные:", publicData);
