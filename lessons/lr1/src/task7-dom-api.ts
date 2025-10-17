@@ -16,6 +16,14 @@
 // - ValidationRule: validate: (value: string) => boolean, message: string
 // - FormData: [fieldName: string]: string
 
+interface FormField {
+    name:string;
+    element: string;
+    validators: [];
+    errorElement?: string;
+}
+
+
 // Утилита для безопасного получения элемента
 function getElementById(id) {
     const element = document.getElementById(id);

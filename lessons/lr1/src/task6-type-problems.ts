@@ -11,16 +11,24 @@
 // Проблемные функции, которые нужно исправить
 
 // ПРОБЛЕМА 1: Функция с any типом
-function processData(data) {
+function processData<T extends object>(data: T[] | T) {
     if (Array.isArray(data)) {
         return data.map(item => item.toString());
     }
+    //return Object.keys(criteria).every((key) => {
+    //    let key1 = key as keyof typeof criteria;
+    //    return user[key1] === criteria[key1];
+    //  });
+
     
     if (typeof data === 'object' && data !== null) {
-        return Object.keys(data).map(key => `${key}: ${data[key]}`);
+        return Object.keys(data).map((key) => {
+            let key1 = key as keyof typeof data;
+            `${key1}: ${data[key1]}`
+        });
     }
     
-    return [data.toString()];
+    return [null];
 }
 
 // ПРОБЛЕМА 2: Функция с неопределенными возвращаемыми типами
