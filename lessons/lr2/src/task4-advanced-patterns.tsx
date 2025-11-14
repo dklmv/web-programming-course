@@ -14,20 +14,18 @@ import React, {
   useContext,
   useState,
   useCallback,
-  ReactNode
-} from 'react';
+  ReactNode,
+} from "react";
 
 // ===== ЗАДАЧА 4.1: Типизированные Context и хуки =====
 
-// TODO: Определите интерфейс User
 interface User {
   id: number;
   name: string;
   email: string;
-  role: 'admin' | 'user' | 'guest';
+  role: "admin" | "user" | "guest";
 }
 
-// TODO: Определите тип для UserContext
 interface UserContextType {
   user: User | null;
   login: (user: User) => void;
@@ -35,20 +33,16 @@ interface UserContextType {
   isLoggedIn: boolean;
 }
 
-// TODO: Создайте типизированный Context
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// TODO: Типизируйте UserProvider
 function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
   const login = useCallback((userData: User) => {
-    // TODO: реализуйте логику входа
     setUser(userData);
   }, []);
 
   const logout = useCallback(() => {
-    // TODO: реализуйте логику выхода
     setUser(null);
   }, []);
 
@@ -58,22 +52,17 @@ function UserProvider({ children }: { children: ReactNode }) {
     user,
     login,
     logout,
-    isLoggedIn
+    isLoggedIn,
   };
 
-  return (
-    <UserContext.Provider value={value}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
-// TODO: Создайте кастомный хук useUser
 function useUser(): UserContextType {
   const context = useContext(UserContext);
 
   if (context === undefined) {
-    throw new Error('useUser must be used within a UserProvider');
+    throw new Error("useUser must be used within a UserProvider");
   }
 
   return context;
@@ -81,9 +70,6 @@ function useUser(): UserContextType {
 
 // ===== ЗАДАЧА 4.2: Простые Compound Components =====
 
-// TODO: Создайте простой Card компонент с compound паттерном
-
-// TODO: Определите интерфейсы для Card
 interface CardProps {
   children: ReactNode;
   className?: string;
@@ -101,71 +87,58 @@ interface CardFooterProps {
   children: ReactNode;
 }
 
-// TODO: Реализуйте основной компонент Card
 function Card({ children, className }: CardProps) {
-  return (
-    <div className={`card ${className || ''}`}>
-      {children}
-    </div>
-  );
+  return <div className={`card ${className || ""}`}>{children}</div>;
 }
 
-// TODO: Реализуйте Card.Header
 const CardHeader = ({ children }: CardHeaderProps) => {
   return <div className="card-header">{children}</div>;
 };
 
-// TODO: Реализуйте Card.Content
 const CardContent = ({ children }: CardContentProps) => {
   return <div className="card-content">{children}</div>;
 };
 
-// TODO: Реализуйте Card.Footer
 const CardFooter = ({ children }: CardFooterProps) => {
   return <div className="card-footer">{children}</div>;
 };
 
-// TODO: Присоедините compound components к Card
 Card.Header = CardHeader;
 Card.Content = CardContent;
 Card.Footer = CardFooter;
 
 // ===== ЗАДАЧА 4.3: Custom Hooks =====
 
-// TODO: Создайте custom hook useCounter
 function useCounter(initialValue = 0) {
   const [count, setCount] = useState(initialValue);
 
   const increment = useCallback(() => {
-    // TODO: реализуйте увеличение
+    setCount((prev) => prev + 1);
   }, []);
 
   const decrement = useCallback(() => {
-    // TODO: реализуйте уменьшение
+    setCount((prev) => prev - 1);
   }, []);
 
   const reset = useCallback(() => {
-    // TODO: реализуйте сброс
+    setCount(initialValue);
   }, [initialValue]);
 
   return { count, increment, decrement, reset };
 }
 
-// TODO: Создайте custom hook useToggle
 function useToggle(initialValue = false) {
   const [value, setValue] = useState(initialValue);
 
   const toggle = useCallback(() => {
-    // TODO: реализуйте переключение
+    setValue((prev) => !prev);
   }, []);
 
   return [value, toggle] as const;
 }
 
-
 // ===== ЗАДАЧА 4.4: Пример демо приложения =====
 
-// TODO: Создайте демо компонент с использованием всех паттернов
 const Demo = () => {
   const { user, login, logout, isLoggedIn } = useUser();
   const { count, increment, decrement, reset } = useCounter(0);
@@ -175,29 +148,31 @@ const Demo = () => {
     <div className="demo">
       <h1>Демо приложение</h1>
 
-      {/* TODO: Пример Context + hooks */}
       <div className="user-section">
         <h2>Пользователь</h2>
         {isLoggedIn ? (
           <div>
-            <p>Привет, {/* TODO: отобразите имя */}!</p>
+            <p>Привет, {user?.name}!</p>
+            <p>Email: {user?.email}</p>
+            <p>Роль: {user?.role}</p>
             <button onClick={logout}>Выйти</button>
           </div>
         ) : (
           <button
-            onClick={() => login({
-              id: 1,
-              name: 'Иван Иванов',
-              email: 'ivan@example.com',
-              role: 'user'
-            })}
+            onClick={() =>
+              login({
+                id: 1,
+                name: "Иван Иванов",
+                email: "ivan@example.com",
+                role: "user",
+              })
+            }
           >
             Войти
           </button>
         )}
       </div>
 
-      {/* TODO: Пример custom hooks */}
       <div className="counter-section">
         <h2>Счетчик: {count}</h2>
         <button onClick={increment}>+</button>
@@ -205,19 +180,16 @@ const Demo = () => {
         <button onClick={reset}>Сброс</button>
       </div>
 
-      {/* TODO: Пример compound components */}
       <div className="card-section">
         <Card className="demo-card">
           <Card.Header>
             <h3>Пример карточки</h3>
             <button onClick={toggleVisible}>
-              {isVisible ? 'Скрыть' : 'Показать'}
+              {isVisible ? "Скрыть" : "Показать"}
             </button>
           </Card.Header>
           <Card.Content>
-            {isVisible && (
-              <p>Содержимое карточки стало видимым!</p>
-            )}
+            {isVisible && <p>Содержимое карточки стало видимым!</p>}
           </Card.Content>
           <Card.Footer>
             <small>Подвал карточки</small>
@@ -230,7 +202,6 @@ const Demo = () => {
 
 // ===== ГЛАВНЫЙ КОМПОНЕНТ =====
 
-// TODO: Типизируйте App компонент
 const App = () => {
   return (
     <UserProvider>
@@ -242,9 +213,3 @@ const App = () => {
 };
 
 export default App;
-
-// ===== БОНУСНЫЕ ЗАДАЧИ =====
-
-// TODO BONUS 1: Добавьте Theme Context с переключением светлой/темной темы
-// TODO BONUS 2: Создайте useLocalStorage hook для сохранения данных
-// TODO BONUS 3: Реализуйте более сложные Compound Components (например, Tabs)
