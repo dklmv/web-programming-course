@@ -22,12 +22,6 @@ function Task4() {
         Задание 4: Flex и Grid layouts
       </h2>
 
-      <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mb-6 text-sm">
-        Откройте{" "}
-        <code className="bg-blue-100 px-1 rounded">src/tasks/Task4.tsx</code> и
-        добавьте flex/grid классы
-      </div>
-
       <div className="space-y-8">
         {/* Flex: горизонтальные кнопки */}
         <div>

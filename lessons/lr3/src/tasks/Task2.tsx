@@ -54,12 +54,6 @@ function Task2() {
         Задание 2: Кнопки с вариантами
       </h2>
 
-      <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4 text-sm">
-        Откройте{" "}
-        <code className="bg-blue-100 px-1 rounded">src/tasks/Task2.tsx</code> и
-        заполните объекты классов
-      </div>
-
       <div className="space-y-6">
         <div>
           <h3 className="text-lg font-semibold mb-3">Варианты</h3>

@@ -1,3 +1,5 @@
+import React from "react";
+
 /**
  * Задание 1: Стилизация карточек
  *
@@ -38,13 +40,6 @@ function Task1() {
       <h2 className="text-2xl font-bold mb-4">
         Задание 1: Стилизация карточек
       </h2>
-
-      <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4 text-sm">
-        Откройте{" "}
-        <code className="bg-blue-100 px-1 rounded">src/tasks/Task1.tsx</code> и
-        добавьте классы
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {products.map((product) => (
           <div key={product.id}>
